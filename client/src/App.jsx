@@ -30,6 +30,7 @@ export default function App() {
       const updated = await updateTodo(todo.id, {
         title: todo.title,
         isComplete: !todo.isComplete,
+        dueDate: todo.dueDate,
       });
       setTodos((prev) => prev.map((t) => (t.id === updated.id ? updated : t)));
     } catch (e) {
@@ -42,6 +43,20 @@ export default function App() {
       const updated = await updateTodo(todo.id, {
         title,
         isComplete: todo.isComplete,
+        dueDate: todo.dueDate,
+      });
+      setTodos((prev) => prev.map((t) => (t.id === updated.id ? updated : t)));
+    } catch (e) {
+      setError(e.message);
+    }
+  }
+
+  async function handleSetDueDate(todo, dueDate) {
+    try {
+      const updated = await updateTodo(todo.id, {
+        title: todo.title,
+        isComplete: todo.isComplete,
+        dueDate,
       });
       setTodos((prev) => prev.map((t) => (t.id === updated.id ? updated : t)));
     } catch (e) {
@@ -74,6 +89,7 @@ export default function App() {
           onToggle={handleToggle}
           onRename={handleRename}
           onDelete={handleDelete}
+          onSetDueDate={handleSetDueDate}
         />
       )}
     </div>
