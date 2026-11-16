@@ -11,4 +11,8 @@ public class Todo : EntityBase
     public bool IsComplete { get; set; } = false;
 
     public DateTime? DueDate { get; set; }
+
+    public int ListId { get; set; }
+
+    public TodoList List { get; set; } = null!;
 }

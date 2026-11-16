@@ -11,10 +11,17 @@ public class AppDbContext : DbContext
     }
 
     public DbSet<Todo> Todos => Set<Todo>();
+    public DbSet<TodoList> TodoLists => Set<TodoList>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
+
+        modelBuilder.Entity<Todo>()
+            .HasOne(todo => todo.List)
+            .WithMany(list => list.Todos)
+            .HasForeignKey(todo => todo.ListId)
+            .OnDelete(DeleteBehavior.Cascade);
     }
 
     public override async Task<int> SaveChangesAsync(CancellationToken ct = default)

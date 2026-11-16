@@ -39,6 +39,9 @@ namespace Priority1.ToDo.Core.Migrations
                     b.Property<bool>("IsComplete")
                         .HasColumnType("bit");
 
+                    b.Property<int>("ListId")
+                        .HasColumnType("int");
+
                     b.Property<string>("Title")
                         .IsRequired()
                         .HasMaxLength(200)
@@ -49,7 +52,49 @@ namespace Priority1.ToDo.Core.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("ListId");
+
                     b.ToTable("Todos");
+                });
+
+            modelBuilder.Entity("Priority1.ToDo.Core.Domain.TodoList", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreateDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<DateTime>("UpdateDate")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("TodoLists");
+                });
+
+            modelBuilder.Entity("Priority1.ToDo.Core.Domain.Todo", b =>
+                {
+                    b.HasOne("Priority1.ToDo.Core.Domain.TodoList", "List")
+                        .WithMany("Todos")
+                        .HasForeignKey("ListId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("List");
+                });
+
+            modelBuilder.Entity("Priority1.ToDo.Core.Domain.TodoList", b =>
+                {
+                    b.Navigation("Todos");
                 });
 #pragma warning restore 612, 618
         }

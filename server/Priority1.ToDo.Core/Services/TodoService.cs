@@ -14,26 +14,39 @@ public class TodoService : ITodoService
         _context = context;
     }
 
-    public async Task<List<Todo>> GetAllAsync(CancellationToken ct = default)
+    public async Task<List<Todo>?> GetAllAsync(int listId, CancellationToken ct = default)
     {
-        return await _context.Todos.ToListAsync(ct);
+        if (!await _context.TodoLists.AnyAsync(list => list.Id == listId, ct))
+        {
+            return null;
+        }
+
+        return await _context.Todos.Where(todo => todo.ListId == listId).ToListAsync(ct);
     }
 
-    public async Task<Todo?> GetByIdAsync(int id, CancellationToken ct = default)
+    public async Task<Todo?> GetByIdAsync(int listId, int id, CancellationToken ct = default)
     {
-        return await _context.Todos.FirstOrDefaultAsync(t => t.Id == id, ct);
+        return await _context.Todos.FirstOrDefaultAsync(
+            todo => todo.ListId == listId && todo.Id == id, ct);
     }
 
-    public async Task<Todo> CreateAsync(Todo itemToCreate, CancellationToken ct = default)
+    public async Task<Todo?> CreateAsync(int listId, Todo itemToCreate, CancellationToken ct = default)
     {
+        if (!await _context.TodoLists.AnyAsync(list => list.Id == listId, ct))
+        {
+            return null;
+        }
+
+        itemToCreate.ListId = listId;
         _context.Todos.Add(itemToCreate);
         await _context.SaveChangesAsync(ct);
         return itemToCreate;
     }
 
-    public async Task<Todo?> UpdateAsync(Todo itemToUpdate, CancellationToken ct = default)
+    public async Task<Todo?> UpdateAsync(int listId, Todo itemToUpdate, CancellationToken ct = default)
     {
-        var todo = await _context.Todos.FirstOrDefaultAsync(t => t.Id == itemToUpdate.Id, ct);
+        var todo = await _context.Todos.FirstOrDefaultAsync(
+            item => item.ListId == listId && item.Id == itemToUpdate.Id, ct);
         if (todo is null)
         {
             return null;
@@ -47,9 +60,10 @@ public class TodoService : ITodoService
         return todo;
     }
 
-    public async Task<bool> DeleteAsync(int id, CancellationToken ct = default)
+    public async Task<bool> DeleteAsync(int listId, int id, CancellationToken ct = default)
     {
-        var todo = await _context.Todos.FirstOrDefaultAsync(t => t.Id == id, ct);
+        var todo = await _context.Todos.FirstOrDefaultAsync(
+            item => item.ListId == listId && item.Id == id, ct);
         if (todo is null)
         {
             return false;
